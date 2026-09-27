@@ -17,7 +17,3 @@ struct InboxView: View {
         }
     }
 }
-
-#Preview {
-    InboxView()
-}

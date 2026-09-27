@@ -17,7 +17,3 @@ struct PantryView: View {
         }
     }
 }
-
-#Preview {
-    PantryView()
-}

@@ -17,7 +17,3 @@ struct TasksView: View {
         }
     }
 }
-
-#Preview {
-    TasksView()
-}
