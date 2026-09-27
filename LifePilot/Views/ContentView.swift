@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+
     var body: some View {
         TabView {
             HomeView()
@@ -34,6 +37,9 @@ struct ContentView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
+        }
+        .task {
+            DemoDataService.seedIfNeeded(in: modelContext)
         }
     }
 }

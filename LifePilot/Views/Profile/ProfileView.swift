@@ -8,11 +8,17 @@ import SwiftUI
 struct ProfileView: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView(
-                "Your profile is coming soon",
-                systemImage: "person",
-                description: Text("Manage your preferences and personalize LifePilot here.")
-            )
+            List {
+                Section {
+                    Label("Alex", systemImage: "person.crop.circle")
+                    Label("$50 weekly budget", systemImage: "dollarsign.circle")
+                }
+
+                Section {
+                    Text("Profile preferences and personalization will appear here.")
+                        .foregroundStyle(.secondary)
+                }
+            }
             .navigationTitle("Profile")
         }
     }
