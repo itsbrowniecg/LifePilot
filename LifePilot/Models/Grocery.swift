@@ -44,12 +44,14 @@ final class Grocery {
     var expirationDate: Date
     var quantity: Int
     var category: String = GroceryCategory.other.rawValue
+    var sourceInboxID: String = ""
 
-    init(name: String, expirationDate: Date, quantity: Int, category: String = GroceryCategory.other.rawValue) {
+    init(name: String, expirationDate: Date, quantity: Int, category: String = GroceryCategory.other.rawValue, sourceInboxID: String = "") {
         self.name = name
         self.expirationDate = expirationDate
         self.quantity = quantity
         self.category = category
+        self.sourceInboxID = sourceInboxID
     }
 
     var groceryCategory: GroceryCategory {

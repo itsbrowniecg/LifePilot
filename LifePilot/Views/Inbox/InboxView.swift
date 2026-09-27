@@ -45,6 +45,17 @@ struct InboxView: View {
                                     Text("\(item.type.capitalized) · \(item.createdAt, format: .dateTime.month().day().hour().minute())")
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
+                                    if !item.analysisSummary.isEmpty {
+                                        Text(item.analysisSummary)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                    }
+                                    if !item.analysisSource.isEmpty {
+                                        Label(item.analysisSource, systemImage: "sparkles")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             } icon: {
                                 Image(systemName: iconName(for: item.type))
@@ -56,7 +67,7 @@ struct InboxView: View {
             }
             .navigationTitle("Inbox")
             .sheet(isPresented: $isPresentingCapture) {
-                CaptureView()
+                CaptureView(aiService: aiService)
             }
         }
     }

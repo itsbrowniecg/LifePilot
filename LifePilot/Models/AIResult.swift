@@ -29,3 +29,14 @@ struct AIResult: Codable, Sendable, Equatable {
     let category: String?
     let priority: AIPriority?
 }
+
+enum AIAnalysisSource: String, Sendable {
+    case mock
+    case fallback
+}
+
+struct AIAnalysisResponse: Sendable {
+    let result: AIResult
+    let source: AIAnalysisSource
+    let notice: String?
+}
