@@ -15,6 +15,10 @@ struct HomeView: View {
     @Query(sort: \Appointment.date) private var appointments: [Appointment]
     @State private var dismissedRecommendationIDs: Set<PersistentIdentifier> = []
 
+    private var timeOfDay: TimeOfDay {
+        .current()
+    }
+
     private var recommendations: [PrioritizedRecommendation] {
         PrioritizationService.recommendations(
             tasks: tasks,
@@ -29,8 +33,7 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("Good morning 👋")
-                        .font(.title.bold())
+                    TimeOfDayGreeting(timeOfDay: timeOfDay)
 
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(alignment: .firstTextBaseline) {
@@ -60,6 +63,10 @@ struct HomeView: View {
                     }
                     .padding()
                     .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(timeOfDay.accentColor.opacity(0.16), lineWidth: 1)
+                    }
                 }
                 .padding()
             }

@@ -8,7 +8,10 @@ import SwiftData
 
 enum DemoDataService {
     static func seedIfNeeded(in modelContext: ModelContext) {
-        guard databaseIsEmpty(in: modelContext) else { return }
+        guard databaseIsEmpty(in: modelContext) else {
+            backfillDemoGroceryCategories(in: modelContext)
+            return
+        }
 
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -24,12 +27,12 @@ enum DemoDataService {
 
         modelContext.insert(Bill(title: "Electricity bill", amount: 83.42, dueDate: tomorrow, category: "Utilities"))
 
-        modelContext.insert(Grocery(name: "Eggs", expirationDate: nextWeek, quantity: 12))
-        modelContext.insert(Grocery(name: "Chicken", expirationDate: twoDaysFromNow, quantity: 1))
-        modelContext.insert(Grocery(name: "Rice", expirationDate: nextMonth, quantity: 1))
-        modelContext.insert(Grocery(name: "Spinach", expirationDate: today, quantity: 1))
-        modelContext.insert(Grocery(name: "Bread", expirationDate: nextWeek, quantity: 1))
-        modelContext.insert(Grocery(name: "Milk", expirationDate: twoDaysFromNow, quantity: 1))
+        modelContext.insert(Grocery(name: "Eggs", expirationDate: nextWeek, quantity: 12, category: GroceryCategory.protein.rawValue))
+        modelContext.insert(Grocery(name: "Chicken", expirationDate: twoDaysFromNow, quantity: 1, category: GroceryCategory.protein.rawValue))
+        modelContext.insert(Grocery(name: "Rice", expirationDate: nextMonth, quantity: 1, category: GroceryCategory.carbs.rawValue))
+        modelContext.insert(Grocery(name: "Spinach", expirationDate: today, quantity: 1, category: GroceryCategory.plants.rawValue))
+        modelContext.insert(Grocery(name: "Bread", expirationDate: nextWeek, quantity: 1, category: GroceryCategory.carbs.rawValue))
+        modelContext.insert(Grocery(name: "Milk", expirationDate: twoDaysFromNow, quantity: 1, category: GroceryCategory.dairy.rawValue))
 
         modelContext.insert(Appointment(title: "Doctor appointment", date: appointmentTime, location: "City Medical Center"))
 
@@ -52,5 +55,34 @@ enum DemoDataService {
         let inboxItemCount = (try? modelContext.fetchCount(FetchDescriptor<InboxItem>())) ?? 0
 
         return taskCount + billCount + groceryCount + appointmentCount + inboxItemCount == 0
+    }
+
+    private static func backfillDemoGroceryCategories(in modelContext: ModelContext) {
+        let descriptor = FetchDescriptor<Grocery>()
+        guard let groceries = try? modelContext.fetch(descriptor) else { return }
+
+        var didUpdate = false
+        for grocery in groceries where grocery.category == GroceryCategory.other.rawValue {
+            guard let category = demoGroceryCategory(for: grocery.name) else { continue }
+            grocery.category = category.rawValue
+            didUpdate = true
+        }
+
+        guard didUpdate else { return }
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Unable to update demo grocery categories: \(error)")
+        }
+    }
+
+    private static func demoGroceryCategory(for name: String) -> GroceryCategory? {
+        switch name.lowercased() {
+        case "eggs", "chicken": .protein
+        case "rice", "bread": .carbs
+        case "spinach": .plants
+        case "milk": .dairy
+        default: nil
+        }
     }
 }

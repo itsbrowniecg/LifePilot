@@ -12,15 +12,19 @@ struct PantryView: View {
     var body: some View {
         NavigationStack {
             List(groceries) { grocery in
-                Label {
+                HStack(spacing: 12) {
+                    Text(grocery.groceryCategory.emoji)
+                        .font(.title2)
+                        .frame(width: 34)
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(grocery.name)
-                        Text("\(grocery.quantity) on hand · Expires \(grocery.expirationDate, format: .dateTime.month().day())")
+                            .font(.headline)
+
+                        Text("\(grocery.groceryCategory.title) · \(availabilityText(for: grocery))")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                } icon: {
-                    Image(systemName: "leaf")
                 }
             }
             .overlay {
@@ -30,5 +34,20 @@ struct PantryView: View {
             }
             .navigationTitle("Pantry")
         }
+    }
+
+    private func availabilityText(for grocery: Grocery) -> String {
+        let calendar = Calendar.current
+
+        if grocery.expirationDate < calendar.startOfDay(for: .now) {
+            return "Expired"
+        }
+        if calendar.isDateInToday(grocery.expirationDate) {
+            return "Expires today"
+        }
+        if calendar.isDateInTomorrow(grocery.expirationDate) {
+            return "Expires tomorrow"
+        }
+        return "\(grocery.quantity) on hand · Expires \(grocery.expirationDate.formatted(date: .abbreviated, time: .omitted))"
     }
 }
