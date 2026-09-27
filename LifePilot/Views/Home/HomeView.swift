@@ -7,6 +7,7 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
+    let aiService: any AIServiceProtocol
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Task.dueDate) private var tasks: [Task]
     @Query(sort: \Bill.dueDate) private var bills: [Bill]

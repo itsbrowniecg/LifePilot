@@ -9,16 +9,17 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    let aiService: any AIServiceProtocol
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         TabView {
-            HomeView()
+            HomeView(aiService: aiService)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
 
-            InboxView()
+            InboxView(aiService: aiService)
                 .tabItem {
                     Label("Inbox", systemImage: "tray")
                 }

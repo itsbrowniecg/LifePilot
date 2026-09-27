@@ -10,6 +10,7 @@ import SwiftData
 
 @main
 struct LifePilotApp: App {
+    private let aiService: any AIServiceProtocol = AIServiceFactory.makeService()
     private let sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Task.self,
@@ -28,7 +29,7 @@ struct LifePilotApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(aiService: aiService)
         }
         .modelContainer(sharedModelContainer)
     }

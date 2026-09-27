@@ -7,6 +7,7 @@ import SwiftUI
 import SwiftData
 
 struct InboxView: View {
+    let aiService: any AIServiceProtocol
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \InboxItem.createdAt, order: .reverse) private var inboxItems: [InboxItem]
     @State private var isPresentingCapture = false
