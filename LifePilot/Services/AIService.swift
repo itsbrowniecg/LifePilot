@@ -18,26 +18,31 @@ struct MockAIService: AIServiceProtocol {
 
     private func result(for text: String) -> AIResult {
         let normalized = text.lowercased()
+        let receiptGroceries = groceries(in: text)
+        if receiptGroceries.count >= 2, receiptGroceries.contains(where: { $0.name.lowercased() == "eggs" || $0.name.lowercased() == "chicken" }) {
+            return AIResult(type: .grocery, title: "Grocery receipt", action: "Add to pantry", notes: text, dueDate: nil, amount: nil, category: GroceryCategory.pantry.rawValue, priority: .low, groceries: receiptGroceries)
+        }
         if normalized.contains("cs assignment") || normalized.contains("assignment") {
-            return AIResult(type: .task, title: "CS assignment", action: "Complete CS assignment", notes: text, dueDate: tonight(), amount: nil, category: "School", priority: .high)
+            return AIResult(type: .task, title: "CS assignment", action: "Complete CS assignment", notes: text, dueDate: tonight(), amount: nil, category: "School", priority: .high, groceries: nil)
         }
         if normalized.contains("electricity") || normalized.contains("electric bill") {
-            return AIResult(type: .bill, title: "Electricity bill", action: "Pay electricity bill", notes: text, dueDate: tomorrow(), amount: 83.42, category: "Utilities", priority: .high)
+            return AIResult(type: .bill, title: "Electricity bill", action: "Pay electricity bill", notes: text, dueDate: tomorrow(), amount: 83.42, category: "Utilities", priority: .high, groceries: nil)
         }
         if normalized.contains("detergent") {
-            return AIResult(type: .task, title: "Buy detergent", action: "Buy detergent", notes: text, dueDate: Calendar.current.date(byAdding: .day, value: 2, to: .now), amount: nil, category: "Errands", priority: .medium)
+            return AIResult(type: .task, title: "Buy detergent", action: "Buy detergent", notes: text, dueDate: Calendar.current.date(byAdding: .day, value: 2, to: .now), amount: nil, category: "Errands", priority: .medium, groceries: nil)
         }
         if normalized.contains("spinach") {
-            return AIResult(type: .grocery, title: "Spinach", action: "Use spinach", notes: text, dueDate: .now, amount: nil, category: GroceryCategory.plants.rawValue, priority: .high)
+            return AIResult(type: .grocery, title: "Spinach", action: "Use spinach", notes: text, dueDate: .now, amount: nil, category: GroceryCategory.plants.rawValue, priority: .high, groceries: [CapturedGrocery(name: "Spinach", category: GroceryCategory.plants.rawValue)])
         }
         if normalized.contains("doctor") || normalized.contains("appointment") {
-            let date = Calendar.current.date(bySettingHour: 16, minute: 0, second: 0, of: .now) ?? .now
-            return AIResult(type: .appointment, title: "Doctor appointment", action: "Attend doctor appointment", notes: text, dueDate: date, amount: nil, category: "Health", priority: .high)
+            let appointmentDay = normalized.contains("tomorrow") ? Calendar.current.date(byAdding: .day, value: 1, to: .now) ?? .now : .now
+            let date = Calendar.current.date(bySettingHour: 16, minute: 0, second: 0, of: appointmentDay) ?? appointmentDay
+            return AIResult(type: .appointment, title: "Doctor appointment", action: "Attend doctor appointment", notes: text, dueDate: date, amount: nil, category: "Health", priority: .high, groceries: nil)
         }
         if normalized.contains("grocery") || normalized.contains("milk") || normalized.contains("rice") {
-            return AIResult(type: .grocery, title: cleanedTitle(text, fallback: "Grocery item"), action: "Review grocery item", notes: text, dueDate: nil, amount: nil, category: GroceryCategory.pantry.rawValue, priority: .low)
+            return AIResult(type: .grocery, title: "Grocery receipt", action: "Add to pantry", notes: text, dueDate: nil, amount: nil, category: GroceryCategory.pantry.rawValue, priority: .low, groceries: receiptGroceries.isEmpty ? demoGroceries() : receiptGroceries)
         }
-        return AIResult(type: .note, title: cleanedTitle(text, fallback: "Note"), action: nil, notes: text, dueDate: nil, amount: nil, category: nil, priority: .low)
+        return AIResult(type: .note, title: cleanedTitle(text, fallback: "Note"), action: nil, notes: text, dueDate: nil, amount: nil, category: nil, priority: .low, groceries: nil)
     }
 
     private func cleanedTitle(_ text: String, fallback: String) -> String {
@@ -47,6 +52,14 @@ struct MockAIService: AIServiceProtocol {
 
     private func tonight() -> Date { Calendar.current.date(bySettingHour: 23, minute: 59, second: 0, of: .now) ?? .now }
     private func tomorrow() -> Date { Calendar.current.date(byAdding: .day, value: 1, to: .now) ?? .now }
+    private func groceries(in text: String) -> [CapturedGrocery] {
+        let values: [(String, GroceryCategory)] = [("Eggs", .protein), ("Chicken", .protein), ("Spinach", .plants), ("Rice", .carbs), ("Milk", .dairy)]
+        let found = values.filter { text.lowercased().contains($0.0.lowercased()) }.map { CapturedGrocery(name: $0.0, category: $0.1.rawValue) }
+        return found
+    }
+    private func demoGroceries() -> [CapturedGrocery] {
+        [("Eggs", GroceryCategory.protein), ("Chicken", .protein), ("Spinach", .plants), ("Rice", .carbs), ("Milk", .dairy)].map { CapturedGrocery(name: $0.0, category: $0.1.rawValue) }
+    }
 }
 
 /// Secure-backend boundary. Intentionally local until a reviewed backend is

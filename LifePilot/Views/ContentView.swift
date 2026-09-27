@@ -41,6 +41,7 @@ struct ContentView: View {
         }
         .task {
             DemoDataService.seedIfNeeded(in: modelContext)
+            InboxAnalysisPersistenceService.removeDuplicateInboxItems(in: modelContext)
         }
     }
 }

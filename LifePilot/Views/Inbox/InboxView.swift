@@ -67,7 +67,7 @@ struct InboxView: View {
             }
             .navigationTitle("Inbox")
             .sheet(isPresented: $isPresentingCapture) {
-                CaptureView(aiService: aiService)
+                AddToLifePilotView(aiService: aiService)
             }
         }
     }
@@ -93,6 +93,7 @@ struct InboxView: View {
         case "bill": "doc.text"
         case "task": "checklist"
         case "receipt": "receipt"
+        case "appointment", "schedule": "calendar"
         case "note": "note.text"
         default: "tray"
         }

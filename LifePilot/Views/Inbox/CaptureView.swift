@@ -9,10 +9,10 @@ import SwiftData
 struct CaptureView: View {
     let aiService: any AIServiceProtocol
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     @State private var capturedText = ""
     @State private var isAnalyzing = false
     @State private var errorMessage: String?
+    @State private var response: AIAnalysisResponse?
 
     private var trimmedText: String { capturedText.trimmingCharacters(in: .whitespacesAndNewlines) }
 
@@ -49,29 +49,26 @@ struct CaptureView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(isAnalyzing) }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(isAnalyzing ? "Analyzing…" : "Analyze & Save") { analyzeAndSave() }
+                    Button(isAnalyzing ? "Analyzing…" : "Continue") { analyze() }
                         .disabled(trimmedText.isEmpty || isAnalyzing)
+                }
+            }
+            .sheet(isPresented: Binding(get: { response != nil }, set: { if !$0 { response = nil } })) {
+                if let response {
+                    CaptureConfirmationView(response: response, sourceText: trimmedText) { dismiss() }
                 }
             }
         }
     }
 
-    private func analyzeAndSave() {
+    private func analyze() {
         isAnalyzing = true
         errorMessage = nil
         let text = trimmedText
         Swift.Task { @MainActor in
-            let item = InboxItem(title: text, type: "note", notes: text)
-            modelContext.insert(item)
             let response = await aiService.analyze(capturedText: text)
-            do {
-                try InboxAnalysisPersistenceService.apply(response, to: item, in: modelContext)
-                dismiss()
-            } catch {
-                modelContext.delete(item)
-                errorMessage = "Couldn’t save this item. Please try again."
-                isAnalyzing = false
-            }
+            self.response = response
+            isAnalyzing = false
         }
     }
 }

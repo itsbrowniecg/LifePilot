@@ -246,6 +246,9 @@
 				DEVELOPMENT_TEAM = DT63VN9F7N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "LifePilot uses the camera to scan bills, receipts, and documents you choose.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LifePilot adds confirmed appointments to your Calendar only when you choose Add to Calendar.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LifePilot adds confirmed tasks and bills to Reminders only when you choose Add Reminder.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -278,6 +281,9 @@
 				DEVELOPMENT_TEAM = DT63VN9F7N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "LifePilot uses the camera to scan bills, receipts, and documents you choose.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LifePilot adds confirmed appointments to your Calendar only when you choose Add to Calendar.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LifePilot adds confirmed tasks and bills to Reminders only when you choose Add Reminder.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

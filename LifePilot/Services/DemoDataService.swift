@@ -10,6 +10,7 @@ enum DemoDataService {
     static func seedIfNeeded(in modelContext: ModelContext) {
         guard databaseIsEmpty(in: modelContext) else {
             backfillDemoGroceryCategories(in: modelContext)
+            seedInboxTimeline(in: modelContext)
             return
         }
 
@@ -36,15 +37,13 @@ enum DemoDataService {
 
         modelContext.insert(Appointment(title: "Doctor appointment", date: appointmentTime, location: "City Medical Center"))
 
-        modelContext.insert(InboxItem(title: "Electricity bill", type: "Bill", notes: "Monthly utility statement."))
-        modelContext.insert(InboxItem(title: "CS assignment", type: "Task", notes: "Assignment details from class."))
-        modelContext.insert(InboxItem(title: "Grocery receipt", type: "Receipt", notes: "Recent grocery purchase."))
-
         do {
             try modelContext.save()
         } catch {
             assertionFailure("Unable to save demo data: \(error)")
         }
+
+        seedInboxTimeline(in: modelContext)
     }
 
     private static func databaseIsEmpty(in modelContext: ModelContext) -> Bool {
@@ -84,5 +83,43 @@ enum DemoDataService {
         case "milk": .dairy
         default: nil
         }
+    }
+
+    private static func seedInboxTimeline(in modelContext: ModelContext) {
+        guard let existingItems = try? modelContext.fetch(FetchDescriptor<InboxItem>()) else { return }
+
+        // These strings belong exclusively to the pre-timeline demo seed. Removing
+        // only these exact rows preserves user-created captures and mock results.
+        let legacyDemoDetails: Set<String> = [
+            "Monthly utility statement.",
+            "Assignment details from class.",
+            "Recent grocery purchase."
+        ]
+        var didChange = false
+        for item in existingItems where legacyDemoDetails.contains(item.notes) {
+            modelContext.delete(item)
+            didChange = true
+        }
+
+        let timeline: [(title: String, type: String, detail: String)] = [
+            ("Electricity Bill", "bill", "$83.42 · Due tomorrow"),
+            ("School Reminder", "note", "Registration reminder"),
+            ("Class Schedule", "appointment", "CS class · 2:00 PM"),
+            ("Homework Deadline", "task", "CS assignment · Due tonight"),
+            ("Grocery Receipt", "receipt", "5 grocery items detected")
+        ]
+
+        for (offset, entry) in timeline.enumerated() {
+            let isPresent = existingItems.contains {
+                $0.title == entry.title && $0.type.lowercased() == entry.type && $0.notes == entry.detail
+            }
+            guard !isPresent else { continue }
+            let createdAt = Calendar.current.date(byAdding: .minute, value: -offset, to: .now) ?? .now
+            modelContext.insert(InboxItem(title: entry.title, type: entry.type, createdAt: createdAt, notes: entry.detail))
+            didChange = true
+        }
+
+        guard didChange else { return }
+        try? modelContext.save()
     }
 }

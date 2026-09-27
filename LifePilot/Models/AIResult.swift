@@ -19,6 +19,18 @@ enum AIPriority: String, Codable, Sendable {
     case low
 }
 
+struct CapturedGrocery: Codable, Sendable, Equatable, Identifiable {
+    let id: String
+    let name: String
+    let category: String
+
+    init(name: String, category: String) {
+        self.id = name.lowercased()
+        self.name = name
+        self.category = category
+    }
+}
+
 struct AIResult: Codable, Sendable, Equatable {
     let type: AIItemType
     let title: String
@@ -28,6 +40,7 @@ struct AIResult: Codable, Sendable, Equatable {
     let amount: Double?
     let category: String?
     let priority: AIPriority?
+    let groceries: [CapturedGrocery]?
 }
 
 enum AIAnalysisSource: String, Sendable {
